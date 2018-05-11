@@ -27,6 +27,7 @@ FOUNDATION_EXPORT const unsigned char SignalMessagingVersionString[];
 #import <SignalMessaging/OWSContactsSyncing.h>
 #import <SignalMessaging/OWSDatabaseMigration.h>
 #import <SignalMessaging/OWSFormat.h>
+#import <SignalMessaging/OWSGroupAvatarBuilder.h>
 #import <SignalMessaging/OWSLogger.h>
 #import <SignalMessaging/OWSMath.h>
 #import <SignalMessaging/OWSProfileManager.h>
@@ -35,10 +36,12 @@ FOUNDATION_EXPORT const unsigned char SignalMessagingVersionString[];
 #import <SignalMessaging/OWSTableViewController.h>
 #import <SignalMessaging/OWSUserProfile.h>
 #import <SignalMessaging/Release.h>
+#import <SignalMessaging/ScreenLockViewController.h>
 #import <SignalMessaging/SharingThreadPickerViewController.h>
 #import <SignalMessaging/SignalKeyingStorage.h>
 #import <SignalMessaging/TSUnreadIndicatorInteraction.h>
 #import <SignalMessaging/ThreadUtil.h>
+#import <SignalMessaging/ThreadViewHelper.h>
 #import <SignalMessaging/UIColor+OWS.h>
 #import <SignalMessaging/UIFont+OWS.h>
 #import <SignalMessaging/UIUtil.h>

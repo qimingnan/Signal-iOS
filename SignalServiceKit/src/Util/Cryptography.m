@@ -102,7 +102,7 @@ const NSUInteger kAES256_KeyByteLength = 32;
 
 + (NSData *)generateRandomBytes:(NSUInteger)numberBytes
 {
-    return [Randomness generateRandomBytes:numberBytes];
+    return [Randomness generateRandomBytes:(int)numberBytes];
 }
 
 #pragma mark SHA1
