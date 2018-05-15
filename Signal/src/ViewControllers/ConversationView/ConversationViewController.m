@@ -1419,10 +1419,7 @@ typedef enum : NSUInteger {
         return;
     }
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-result"
     [self.outboundCallInitiator initiateCallWithRecipientId:self.thread.contactIdentifier isVideo:isVideo];
-#pragma GCC diagnostic pop
 }
 
 - (BOOL)canCall
