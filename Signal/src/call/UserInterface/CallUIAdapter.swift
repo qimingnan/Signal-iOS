@@ -66,7 +66,7 @@ extension CallUIAdaptee {
     internal func startAndShowOutgoingCall(recipientId: String, hasLocalVideo: Bool) {
         SwiftAssertIsOnMainThread(#function)
 
-        guard self.callService.currentCall == nil else {
+        guard self.callService.call == nil else {
             Logger.info("unexpectedly found an existing call when trying to start outgoing call: \(recipientId)")
             //TODO terminate existing call.
             return

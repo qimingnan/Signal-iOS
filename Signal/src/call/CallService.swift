@@ -291,7 +291,7 @@ private class SignalCallData: NSObject {
 
     // This accessor is intended for external use only.
     // Internally, we should access the call through the call data.
-    public var currentCall: SignalCall? {
+    public var call: SignalCall? {
         get {
             SwiftAssertIsOnMainThread(#function)
 
