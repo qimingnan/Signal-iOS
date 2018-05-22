@@ -908,17 +908,6 @@ private class SignalCallData: NSObject {
             Logger.debug("\(self.logTag) in \(#function) disconnect while ringing... we'll keep ringing")
         case .localRinging:
             // This can happen if the incoming caller hangs up while we are ringing.
-            let callType = (call.direction == .incoming
-                ? RPRecentCallTypeIncomingIncomplete
-                : RPRecentCallTypeOutgoingIncomplete)
-            if let callRecord = call.callRecord {
-                callRecord.updateCallType(callType)
-            } else {
-                let callRecord = TSCall(timestamp: NSDate.ows_millisecondTimeStamp(), withCallNumber: call.remotePhoneNumber, callType: callType, in: call.thread)
-                callRecord.save()
-                call.callRecord = callRecord
-            }
-
             handleFailedCurrentCall(error: CallError.disconnected)
         case .connected:
             call.state = .reconnecting
@@ -1575,6 +1564,18 @@ private class SignalCallData: NSObject {
                 assert(failedCall.callRecord == nil)
                 // call failed before any call record could be created, make one now.
                 handleMissedCall(failedCall)
+            }
+
+            // Ensure there is a call record.
+            let callType = (failedCall.direction == .incoming
+                ? RPRecentCallTypeIncomingIncomplete
+                : RPRecentCallTypeOutgoingIncomplete)
+            if let callRecord = failedCall.callRecord {
+                callRecord.updateCallType(callType)
+            } else {
+                let callRecord = TSCall(timestamp: NSDate.ows_millisecondTimeStamp(), withCallNumber: failedCall.remotePhoneNumber, callType: callType, in: failedCall.thread)
+                callRecord.save()
+                failedCall.callRecord = callRecord
             }
             assert(failedCall.callRecord != nil)
 
