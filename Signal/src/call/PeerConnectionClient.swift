@@ -286,7 +286,7 @@ class PeerConnectionClient: NSObject, RTCPeerConnectionDelegate, RTCDataChannelD
         SwiftAssertIsOnMainThread(#function)
 
         let handle = self.handle
-        PeerConnectionClient.signalingQueue.async { in
+        PeerConnectionClient.signalingQueue.async {
             guard let strongSelf = handle.get() else { return }
             guard let localVideoSource = strongSelf.localVideoSource else {
                 Logger.debug("\(strongSelf.logTag) \(#function) Ignoring obsolete event in terminated client")
@@ -306,14 +306,14 @@ class PeerConnectionClient: NSObject, RTCPeerConnectionDelegate, RTCDataChannelD
     public func setLocalVideoEnabled(enabled: Bool) {
         SwiftAssertIsOnMainThread(#function)
         let handle = self.handle
-        let completion = { in
+        let completion = {
             guard let strongSelf = handle.get() else { return }
             guard let localVideoTrack = strongSelf.localVideoTrack else { return }
             guard let strongDelegate = strongSelf.delegate else { return }
             strongDelegate.peerConnectionClient(strongSelf, didUpdateLocal: enabled ? localVideoTrack : nil)
         }
 
-        PeerConnectionClient.signalingQueue.async { in
+        PeerConnectionClient.signalingQueue.async {
             guard let strongSelf = handle.get() else { return }
             guard strongSelf.peerConnection != nil else {
                 Logger.debug("\(strongSelf.logTag) \(#function) Ignoring obsolete event in terminated client")
@@ -373,7 +373,7 @@ class PeerConnectionClient: NSObject, RTCPeerConnectionDelegate, RTCDataChannelD
     public func setAudioEnabled(enabled: Bool) {
         SwiftAssertIsOnMainThread(#function)
         let handle = self.handle
-        PeerConnectionClient.signalingQueue.async { in
+        PeerConnectionClient.signalingQueue.async {
             guard let strongSelf = handle.get() else { return }
             guard strongSelf.peerConnection != nil else {
                 Logger.debug("\(strongSelf.logTag) \(#function) Ignoring obsolete event in terminated client")
@@ -428,7 +428,7 @@ class PeerConnectionClient: NSObject, RTCPeerConnectionDelegate, RTCDataChannelD
             fulfill(HardenedRTCSessionDescription(rtcSessionDescription: sessionDescription))
         }
 
-        PeerConnectionClient.signalingQueue.async { in
+        PeerConnectionClient.signalingQueue.async {
             guard let strongSelf = handle.get() else {
                 reject(NSError(domain: "Obsolete client", code: 0, userInfo: nil))
                 return
@@ -453,7 +453,7 @@ class PeerConnectionClient: NSObject, RTCPeerConnectionDelegate, RTCDataChannelD
     public func setLocalSessionDescriptionInternal(_ sessionDescription: HardenedRTCSessionDescription) -> Promise<Void> {
         let handle = self.handle
         let (promise, fulfill, reject) = Promise<Void>.pending()
-        PeerConnectionClient.signalingQueue.async { in
+        PeerConnectionClient.signalingQueue.async {
             guard let strongSelf = handle.get() else {
                 reject(NSError(domain: "Obsolete client", code: 0, userInfo: nil))
                 return
@@ -482,7 +482,7 @@ class PeerConnectionClient: NSObject, RTCPeerConnectionDelegate, RTCDataChannelD
         SwiftAssertIsOnMainThread(#function)
         let handle = self.handle
         let (promise, fulfill, reject) = Promise<Void>.pending()
-        PeerConnectionClient.signalingQueue.async { in
+        PeerConnectionClient.signalingQueue.async {
             guard let strongSelf = handle.get() else {
                 reject(NSError(domain: "Obsolete client", code: 0, userInfo: nil))
                 return
@@ -512,7 +512,7 @@ class PeerConnectionClient: NSObject, RTCPeerConnectionDelegate, RTCDataChannelD
         SwiftAssertIsOnMainThread(#function)
         let handle = self.handle
         return setRemoteSessionDescription(remoteDescription)
-            .then(on: PeerConnectionClient.signalingQueue) { in
+            .then(on: PeerConnectionClient.signalingQueue) {
                 guard let strongSelf = handle.get() else {
                     return Promise(error: NSError(domain: "Obsolete client", code: 0, userInfo: nil))
                 }
@@ -524,7 +524,7 @@ class PeerConnectionClient: NSObject, RTCPeerConnectionDelegate, RTCDataChannelD
         SwiftAssertIsOnMainThread(#function)
         let handle = self.handle
         let (promise, fulfill, reject) = Promise<Void>.pending()
-        PeerConnectionClient.signalingQueue.async { in
+        PeerConnectionClient.signalingQueue.async {
             guard let strongSelf = handle.get() else {
                 reject(NSError(domain: "Obsolete client", code: 0, userInfo: nil))
                 return
@@ -585,7 +585,7 @@ class PeerConnectionClient: NSObject, RTCPeerConnectionDelegate, RTCDataChannelD
             }
         }
 
-        PeerConnectionClient.signalingQueue.async { in
+        PeerConnectionClient.signalingQueue.async {
             guard let strongSelf = handle.get() else {
                 reject(NSError(domain: "Obsolete client", code: 0, userInfo: nil))
                 return
@@ -611,7 +611,7 @@ class PeerConnectionClient: NSObject, RTCPeerConnectionDelegate, RTCDataChannelD
 
     public func addRemoteIceCandidate(_ candidate: RTCIceCandidate) {
         let handle = self.handle
-        PeerConnectionClient.signalingQueue.async { in
+        PeerConnectionClient.signalingQueue.async {
             guard let strongSelf = handle.get() else { return }
             guard let peerConnection = strongSelf.peerConnection else {
                 Logger.debug("\(strongSelf.logTag) \(#function) Ignoring obsolete event in terminated client")
@@ -692,7 +692,7 @@ class PeerConnectionClient: NSObject, RTCPeerConnectionDelegate, RTCDataChannelD
     public func sendDataChannelMessage(data: Data, description: String, isCritical: Bool) {
         SwiftAssertIsOnMainThread(#function)
         let handle = self.handle
-        PeerConnectionClient.signalingQueue.async { in
+        PeerConnectionClient.signalingQueue.async {
             guard let strongSelf = handle.get() else { return }
 
             guard strongSelf.peerConnection != nil else {
@@ -743,7 +743,7 @@ class PeerConnectionClient: NSObject, RTCPeerConnectionDelegate, RTCDataChannelD
             strongDelegate.peerConnectionClient(strongSelf, received: dataChannelMessage)
         }
 
-        PeerConnectionClient.signalingQueue.async { in
+        PeerConnectionClient.signalingQueue.async {
             guard let strongSelf = handle.get() else { return }
             guard strongSelf.peerConnection != nil else {
                 Logger.debug("\(strongSelf.logTag) \(#function) Ignoring obsolete event in terminated client")
@@ -788,7 +788,7 @@ class PeerConnectionClient: NSObject, RTCPeerConnectionDelegate, RTCDataChannelD
             strongDelegate.peerConnectionClient(strongSelf, didUpdateRemote: remoteVideoTrack)
         }
 
-        PeerConnectionClient.signalingQueue.async { in
+        PeerConnectionClient.signalingQueue.async {
             guard let strongSelf = handle.get() else { return }
             guard let peerConnection = strongSelf.peerConnection else {
                 Logger.debug("\(strongSelf.logTag) \(#function) Ignoring obsolete event in terminated client")
@@ -826,26 +826,26 @@ class PeerConnectionClient: NSObject, RTCPeerConnectionDelegate, RTCDataChannelD
     /** Called any time the IceConnectionState changes. */
     internal func peerConnection(_ peerConnectionParam: RTCPeerConnection, didChange newState: RTCIceConnectionState) {
         let handle = self.handle
-        let connectedCompletion : () -> Void = { in
+        let connectedCompletion : () -> Void = {
             SwiftAssertIsOnMainThread(#function)
             guard let strongSelf = handle.get() else { return }
             guard let strongDelegate = strongSelf.delegate else { return }
             strongDelegate.peerConnectionClientIceConnected(strongSelf)
         }
-        let failedCompletion : () -> Void = { in
+        let failedCompletion : () -> Void = {
             SwiftAssertIsOnMainThread(#function)
             guard let strongSelf = handle.get() else { return }
             guard let strongDelegate = strongSelf.delegate else { return }
             strongDelegate.peerConnectionClientIceFailed(strongSelf)
         }
-        let disconnectedCompletion : () -> Void = { in
+        let disconnectedCompletion : () -> Void = {
             SwiftAssertIsOnMainThread(#function)
             guard let strongSelf = handle.get() else { return }
             guard let strongDelegate = strongSelf.delegate else { return }
             strongDelegate.peerConnectionClientIceDisconnected(strongSelf)
         }
 
-        PeerConnectionClient.signalingQueue.async { in
+        PeerConnectionClient.signalingQueue.async {
             guard let strongSelf = handle.get() else { return }
             guard let peerConnection = strongSelf.peerConnection else {
                 Logger.debug("\(strongSelf.logTag) \(#function) Ignoring obsolete event in terminated client")
@@ -887,7 +887,7 @@ class PeerConnectionClient: NSObject, RTCPeerConnectionDelegate, RTCDataChannelD
             strongDelegate.peerConnectionClient(strongSelf, addedLocalIceCandidate: candidate)
         }
 
-        PeerConnectionClient.signalingQueue.async { in
+        PeerConnectionClient.signalingQueue.async {
             guard let strongSelf = handle.get() else { return }
             guard let peerConnection = strongSelf.peerConnection else {
                 Logger.debug("\(strongSelf.logTag) \(#function) Ignoring obsolete event in terminated client")
@@ -920,7 +920,7 @@ class PeerConnectionClient: NSObject, RTCPeerConnectionDelegate, RTCDataChannelD
             }
         }
 
-        PeerConnectionClient.signalingQueue.async { in
+        PeerConnectionClient.signalingQueue.async {
             guard let strongSelf = handle.get() else { return }
             guard let peerConnection = strongSelf.peerConnection else {
                 Logger.debug("\(strongSelf.logTag) \(#function) Ignoring obsolete event in terminated client")
