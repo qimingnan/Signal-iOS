@@ -117,35 +117,67 @@ private class SignalCallData: NSObject {
     let rejectReadyToSendIceUpdatesPromise: ((Error) -> Void)
     let readyToSendIceUpdatesPromise: Promise<Void>
 
-    weak var localVideoTrack: RTCVideoTrack? {
-        didSet {
+    private weak var localVideoTrack_: RTCVideoTrack?
+    var localVideoTrack: RTCVideoTrack? {
+        get {
+        SwiftAssertIsOnMainThread(#function)
+
+        return localVideoTrack_
+        }
+        set {
             SwiftAssertIsOnMainThread(#function)
 
-            Logger.info("\(self.logTag) \(#function)")
+            Logger.info("\(self.logTag)\(#function): \(localVideoTrack_ != nil) -> \(newValue != nil) \(String(describing: newValue))")
+
+            localVideoTrack_ = newValue
         }
     }
 
-    weak var remoteVideoTrack: RTCVideoTrack? {
-        didSet {
+    weak var remoteVideoTrack_: RTCVideoTrack?
+    var remoteVideoTrack: RTCVideoTrack? {
+        get {
             SwiftAssertIsOnMainThread(#function)
 
-            Logger.info("\(self.logTag) \(#function)")
+            return remoteVideoTrack_
+        }
+        set {
+            SwiftAssertIsOnMainThread(#function)
+
+            Logger.info("\(self.logTag)\(#function): \(remoteVideoTrack_ != nil) -> \(newValue != nil) \(String(describing: newValue))")
+
+            remoteVideoTrack_ = newValue
         }
     }
 
-    var isRemoteVideoEnabled = false {
-        didSet {
+    var isRemoteVideoEnabled_ = false
+    var isRemoteVideoEnabled: Bool {
+        get {
             SwiftAssertIsOnMainThread(#function)
 
-            Logger.info("\(self.logTag) \(#function): \(isRemoteVideoEnabled)")
+            return isRemoteVideoEnabled_
+        }
+        set {
+            SwiftAssertIsOnMainThread(#function)
+
+            Logger.info("\(self.logTag)\(#function): \(isRemoteVideoEnabled_) -> \(newValue)")
+
+            isRemoteVideoEnabled_ = newValue
         }
     }
 
+    var peerConnectionClient_: PeerConnectionClient?
     var peerConnectionClient: PeerConnectionClient? {
-        didSet {
+        get {
             SwiftAssertIsOnMainThread(#function)
 
-            Logger.debug("\(self.logTag) .peerConnectionClient setter: \(oldValue != nil) -> \(peerConnectionClient != nil) \(String(describing: peerConnectionClient))")
+            return peerConnectionClient_
+        }
+        set {
+            SwiftAssertIsOnMainThread(#function)
+
+            Logger.info("\(self.logTag)\(#function): \(peerConnectionClient_ != nil) -> \(newValue != nil) \(String(describing: newValue))")
+
+            peerConnectionClient_ = newValue
         }
     }
 
@@ -195,8 +227,12 @@ private class SignalCallData: NSObject {
         // There is no harm in rejecting a previously fulfilled promise.
         rejectReadyToSendIceUpdatesPromise(CallError.obsoleteCall(description: "Terminating call"))
 
-        peerConnectionClient?.terminate()
-        Logger.debug("\(self.logTag) setting peerConnectionClient in \(#function)")
+        if let peerConnectionClient = peerConnectionClient {
+            Logger.debug("\(self.logTag) terminating peerConnectionClient in \(#function)")
+            peerConnectionClient.terminate()
+        } else {
+            Logger.debug("\(self.logTag) no peerConnectionClient in \(#function)")
+        }
     }
 }
 
@@ -265,20 +301,6 @@ private class SignalCallData: NSObject {
             SwiftAssertIsOnMainThread(#function)
 
             return callData?.peerConnectionClient
-        }
-    }
-    var localVideoTrack: RTCVideoTrack? {
-        get {
-            SwiftAssertIsOnMainThread(#function)
-
-            return callData?.localVideoTrack
-        }
-    }
-    var remoteVideoTrack: RTCVideoTrack? {
-        get {
-            SwiftAssertIsOnMainThread(#function)
-
-            return callData?.remoteVideoTrack
         }
     }
     var isRemoteVideoEnabled: Bool {
@@ -391,7 +413,7 @@ private class SignalCallData: NSObject {
             guard self.call == call else {
                 throw CallError.obsoleteCall(description: "obsolete call in \(#function)")
             }
-            guard let peerConnectionClient = self.peerConnectionClient else {
+            guard let peerConnectionClient = callData.peerConnectionClient else {
                 owsFail("Missing peerConnectionClient in \(#function)")
                 throw CallError.obsoleteCall(description: "Missing peerConnectionClient in \(#function)")
             }
@@ -1612,9 +1634,10 @@ private class SignalCallData: NSObject {
         observers.append(Weak(value: observer))
 
         // Synchronize observer with current call state
-        let call = self.call
-        let localVideoTrack = self.localVideoTrack
-        let remoteVideoTrack = self.isRemoteVideoEnabled ? self.remoteVideoTrack : nil
+        let callData = self.callData
+        let call = callData?.call
+        let localVideoTrack = callData?.localVideoTrack
+        let remoteVideoTrack = self.isRemoteVideoEnabled ? callData?.remoteVideoTrack : nil
         observer.didUpdateVideoTracks(call: call,
                                       localVideoTrack: localVideoTrack,
                                       remoteVideoTrack: remoteVideoTrack)
@@ -1639,10 +1662,10 @@ private class SignalCallData: NSObject {
     private func fireDidUpdateVideoTracks() {
         SwiftAssertIsOnMainThread(#function)
 
-        let call = self.call
-        let localVideoTrack = self.localVideoTrack
-        let remoteVideoTrack = self.isRemoteVideoEnabled ? self.remoteVideoTrack : nil
-
+        let callData = self.callData
+        let call = callData?.call
+        let localVideoTrack = callData?.localVideoTrack
+        let remoteVideoTrack = self.isRemoteVideoEnabled ? callData?.remoteVideoTrack : nil
         for observer in observers {
             observer.value?.didUpdateVideoTracks(call: call,
                                                  localVideoTrack: localVideoTrack,
