@@ -89,7 +89,7 @@ class PeerConnectionClient: NSObject, RTCPeerConnectionDelegate, RTCDataChannelD
     // instance, so terminate is a reliable place where we can break the retain cycle.
     //
     // TODO: This should be fixed in Swift 4.  To verify, remove AtomicHandle and
-    // use as usual.  Test using the following scenarios:
+    // use [weak self] as usual.  Test using the following scenarios:
     //
     // * Alice and Bob place simultaneous calls to each other. Both should get busy.
     //   Repeat 10-20x.  Then verify that they can connect a call by having just one
@@ -634,7 +634,7 @@ class PeerConnectionClient: NSObject, RTCPeerConnectionDelegate, RTCDataChannelD
         // going forward.
         handle.clear()
 
-        // Don't use; we always want to perform terminateInternal().
+        // Don't use [weak self]; we always want to perform terminateInternal().
         PeerConnectionClient.signalingQueue.async {
             self.terminateInternal()
         }
