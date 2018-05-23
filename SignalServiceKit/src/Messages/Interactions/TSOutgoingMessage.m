@@ -78,6 +78,8 @@ NSString *NSStringForOutgoingMessageRecipientState(OWSOutgoingMessageRecipientSt
 @property (atomic) NSString *mostRecentFailureText;
 @property (atomic) BOOL isFromLinkedDevice;
 @property (atomic) TSGroupMetaMessage groupMetaMessage;
+@property (nonatomic, readonly) TSOutgoingMessageState legacyMessageState;
+@property (nonatomic, readonly) BOOL hasLegacyMessageState;
 
 @property (atomic, nullable) NSDictionary<NSString *, TSOutgoingMessageRecipientState *> *recipientStateMap;
 
@@ -138,6 +140,12 @@ NSString *NSStringForOutgoingMessageRecipientState(OWSOutgoingMessageRecipientSt
         [coder decodeObjectForKey:@"recipientDeliveryMap"];
     NSDictionary<NSString *, NSNumber *> *_Nullable recipientReadMap = [coder decodeObjectForKey:@"recipientReadMap"];
     NSArray<NSString *> *_Nullable sentRecipients = [coder decodeObjectForKey:@"sentRecipients"];
+
+    NSNumber *legacyMessageState = [coder decodeObjectForKey:@"messageState"];
+    if (legacyMessageState) {
+        _hasLegacyMessageState = YES;
+        _legacyMessageState = legacyMessageState.integerValue;
+    }
 
     NSMutableDictionary<NSString *, TSOutgoingMessageRecipientState *> *recipientStateMap = [NSMutableDictionary new];
     // Our default recipient list is the current thread members.
@@ -330,6 +338,9 @@ NSString *NSStringForOutgoingMessageRecipientState(OWSOutgoingMessageRecipientSt
 
 - (TSOutgoingMessageState)messageState
 {
+    if (self.hasLegacyMessageState) {
+        return self.legacyMessageState;
+    }
     return [TSOutgoingMessage messageStateForRecipientStates:self.recipientStateMap.allValues];
 }
 
